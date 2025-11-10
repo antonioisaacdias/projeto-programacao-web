@@ -12,8 +12,11 @@ class MovieController {
 
   async getAll(req, res) {
     try {
-      const movies = await movieService.getAll();
-      return res.status(200).json(movies);
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 10;
+      
+      const result = await movieService.getAll(page, limit);
+      return res.status(200).json(result);
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }

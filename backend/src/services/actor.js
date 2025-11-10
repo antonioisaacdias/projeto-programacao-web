@@ -10,16 +10,27 @@ class ActorService {
         }
     }
 
-    async getAll() {
+    async getAll(page = 1, limit = 10) {
         try {
-        const actors = await Actor.findAll({
+        const offset = (page - 1) * limit;
+        
+        const { count, rows } = await Actor.findAndCountAll({
             include: [{
                 model: Movie,
                 as: 'movies',
                 through: { attributes: [] }
             }],
+            limit: parseInt(limit),
+            offset: parseInt(offset),
+            distinct: true
         });
-        return actors;
+        
+        return {
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: parseInt(page),
+            actors: rows
+        };
         } catch (error) {
         throw new Error('Error fetching actors: ' + error.message);
         }
