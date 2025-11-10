@@ -12,6 +12,20 @@ export const sequelize = new Sequelize(
     dialect: 'postgres',
     port: process.env.DB_PORT,
     logging: false,
+    retry: {
+      max: 5,
+      match: [
+        /ECONNREFUSED/,
+        /ETIMEDOUT/,
+        /EHOSTUNREACH/,
+      ],
+    },
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
+    }
   }
 );
 
