@@ -3,6 +3,17 @@ import { Actor, Movie } from '../models/index.js';
 class MovieService {
     async create(data) {
         try {
+        const existingMovie = await Movie.findOne({
+            where: {
+            title: data.title,
+            releaseYear: data.releaseYear
+            }
+        });
+
+        if (existingMovie) {
+            throw new Error(`A movie with title "${data.title}" and release year ${data.releaseYear} already exists`);
+        }
+
         const movie = await Movie.create(data);
         return movie;
         } catch (error) {
@@ -57,6 +68,23 @@ class MovieService {
         if (!movie) {
             throw new Error('Movie not found');
         }
+
+        if (data.title || data.releaseYear) {
+            const titleToCheck = data.title || movie.title;
+            const yearToCheck = data.releaseYear || movie.releaseYear;
+
+            const existingMovie = await Movie.findOne({
+            where: {
+                title: titleToCheck,
+                releaseYear: yearToCheck
+            }
+            });
+
+            if (existingMovie && existingMovie.id !== movie.id) {
+            throw new Error(`A movie with title "${titleToCheck}" and release year ${yearToCheck} already exists`);
+            }
+        }
+
         await movie.update(data);
         return movie;
         } catch (error) {
@@ -84,6 +112,12 @@ class MovieService {
         if (!movie || !actor) {
             throw new Error('Movie or Actor not found');
         }
+
+        const actors = await movie.getActors({ where: { id: actorId } });
+        if (actors.length > 0) {
+            throw new Error('Actor is already associated with this movie');
+        }
+
         await movie.addActor(actor);
         return await this.getById(movieId);
         } catch (error) {
@@ -98,6 +132,12 @@ class MovieService {
         if (!movie || !actor) {
             throw new Error('Movie or Actor not found');
         }
+
+        const actors = await movie.getActors({ where: { id: actorId } });
+        if (actors.length === 0) {
+            throw new Error('Actor is not associated with this movie');
+        }
+
         await movie.removeActor(actor);
         return await this.getById(movieId);
         } catch (error) {

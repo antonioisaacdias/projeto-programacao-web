@@ -9,6 +9,7 @@ const Actor = sequelize.define('Actor', {
   },
   name: {
     type: DataTypes.STRING,
+    unique: true,
     allowNull: false,
   },
   birthdate: {
@@ -16,7 +17,7 @@ const Actor = sequelize.define('Actor', {
     allowNull: false,
   },
   gender: {
-    type: DataTypes.STRING,
+    type: DataTypes.ENUM('M', 'F', 'O'),
     allowNull: false,
   },
 }, {
