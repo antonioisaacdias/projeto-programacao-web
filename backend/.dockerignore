@@ -1,0 +1,8 @@
+node_modules
+.env
+postgres_data
+.git
+.gitignore
+*.log
+.DS_Store
+.vscode
